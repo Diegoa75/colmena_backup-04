@@ -6,4 +6,4 @@ script: ant build
 
 
 os:
-  - windows10
+  - windows
