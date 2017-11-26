@@ -3,7 +3,7 @@ jdk:
   - openjdk7
 
 script: ant build
-sudo: false
+
 
 dist: trusty
 
