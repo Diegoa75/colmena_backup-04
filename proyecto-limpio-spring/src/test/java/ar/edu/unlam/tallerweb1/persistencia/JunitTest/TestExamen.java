@@ -19,19 +19,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
-/*public class TestExamen extends SpringTest{
+public class TestExamen extends SpringTest{
       
     Examen examen;
+    Examen examen2;
 	Pregunta pregunta;
 	Respuesta respuesta;
 	    
 	
     @Before
-    @Transactional @Rollback(true)
+    @Transactional @Rollback(false)
     public void llenarDatos()  
-    {   
+    {       	    	
+    	/*examen ingles */
     	ArrayList <Pregunta> preguntas = new ArrayList();
     	ArrayList <Respuesta> respuestas = new ArrayList();    	
     	respuestas.add(new Respuesta("No soy",false));
@@ -45,14 +48,32 @@ import java.util.List;
     	respuestas2.add(new Respuesta("el es",true));
     	respuestas2.add(new Respuesta("el tiene",true));    	    	    	
     	
-    	preguntas.add( new Pregunta("Significado de 'He Has'",respuestas2)); 
+    	preguntas.add( new Pregunta("Significado de 'He Has'",respuestas2));     	    	    	
+    	examen = new Examen("Examen Ingles","12/12/2018","final",preguntas,100);
     	
+    	getSession().save(examen);  
+    	       	
+    	/*examen historia*/
+    	ArrayList <Pregunta> preguntas2 = new ArrayList();
+    	ArrayList <Respuesta> respuestas3 = new ArrayList();    	
+    	respuestas3.add(new Respuesta("Negro",false));
+    	respuestas3.add(new Respuesta("blanco",true));    	   	    	    	
     	
+    	preguntas2.add( new Pregunta("De que color fue el caballlo blanco de San Martin?",respuestas3)); 
     	
-    	examen = new Examen("Ingles","12/12/2018","final",preguntas);
+    	ArrayList <Respuesta> respuestas4 = new ArrayList();     
+    	respuestas4.add(new Respuesta("Francia",true));
+    	respuestas4.add(new Respuesta("Argentina",false));    	    	    	
     	
-    	getSession().save(examen);      
+    	preguntas2.add( new Pregunta("Donde Murio san Martin'",respuestas4)); 
+    	    	    	
     	
+    	examen2 = new Examen("Examen Historia","12/12/2018","final",preguntas2,100);
+    	
+    	getSession().save(examen2);     	    	 	    	   	    	    	   	
+    	    	
+    	/* fin carga de examenes*/
+   
     } 	
    
     
@@ -64,67 +85,35 @@ import java.util.List;
        List <Respuesta> res;
            	
     	res = getSession().createCriteria(Respuesta.class)
-    			.add (Restrictions.eq("id", Long.parseLong( "31")))
+    			.add (Restrictions.eq("nombre", "Francia"))
     			.list();
     	
     	    	    	
-   	for (Respuesta item : res) {
-    		
-    		System.out.println(item.getId());
-			System.out.println(item.getNombre());
-			
-			Assert.assertEquals(item.getNombre(),"No soy");     	
-    		}
+   	for (Respuesta item : res) {  
+			Assert.assertEquals(item.getNombre(),"Francia");     	
+    }
    	
     List <Pregunta> pre;
    	
    	pre = getSession().createCriteria(Pregunta.class)
-			.add (Restrictions.eq("id", Long.parseLong( "12")))
+			.add (Restrictions.eq("nombre", "Donde Murio san Martin"))
 			.list();
    	
-   	for (Pregunta item : pre) {
-   		
-		System.out.println(item.getId());
-		System.out.println(item.getNombre());
-		
-		Assert.assertEquals(item.getExamen().getNombre(),"Ingles"); 		
+   	for (Pregunta item : pre) {  
+		Assert.assertEquals(item.getNombre(),"Donde Murio san Martin"); 		
 		}
    	
    	List <Examen> ex;
    	ex = getSession().createCriteria(Examen.class)
-			.add (Restrictions.eq("id", Long.parseLong( "7")))
+			.add (Restrictions.eq("nombre", "Examen Historia"))
 			.list();
    	
 	
-   	for (Examen item : ex) {
-   		
-		System.out.println(item.getId());
-		System.out.println(item.getNombre());
-		Assert.assertEquals(item.getNombre(),"Ingles"); 
-				
-		for (Pregunta item2 : item.getPreguntas()){			
-			System.out.println(item2.getId());
-			System.out.println(item2.getNombre());
-			
-			for (Respuesta item3 : item2.getRespuestas()){			
-				System.out.println(item3.getId());
-				System.out.println(item3.getNombre());
-			}
+   	for (Examen item : ex) {  
+		Assert.assertEquals(item.getNombre(),"Examen Historia"); 				
 		}
-		
-		
-				
-		}
-   	
-   	
-   	
-   	
-   	
-   	
-          	    	    	      	         	
+            	    	    	      	         	
     }
     
-   
-    
-}*/
+}
     

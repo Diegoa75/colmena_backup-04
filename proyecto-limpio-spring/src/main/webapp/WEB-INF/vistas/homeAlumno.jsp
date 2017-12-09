@@ -1,5 +1,8 @@
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -32,14 +35,67 @@
 	    <!-- Bootstrap theme -->
 	    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
 	    <link href="css/estilos.css" rel="stylesheet">
+	    
+	     <style>
+    h4 { color: white; }
+    h1 { color: white; }
+   
+  		</style>
+  		
+<script language="javascript">
+//VALIDACION CHECKBOX
+function validacion(formu, obj) {
+  limite=1; //limite de checks a seleccionar
+  num=0;
+    for (i=0;ele=document.getElementById(formu).children[i] ; i++)
+    {   
+    	if (ele.checked) 
+    	num++;	    	
+    }
+  if (num>limite)
+    obj.checked=false;  
+}  
+</script>  	
+  		
+	    
 </head>
 <body>
-<h1>Hola ${usuario.nombre}</h1><br>
 
-<div><a href="verCursos/${usuario.id}"  class="btn btn-primary btn-sm active" role="button">Ver Cursos</a></div>
 
-<div><a href="rendirExamen22"  class="btn btn-danger btn-sm active" role="button">Rendir examen ENSAYO</a></div>
+			
+<header class="panel-primary">
+<div class="container-fluid panel-heading">
+  <h1><center><img src="C:\java\proyectos\proyecto-limpio-spring\src\main\webapp\WEB-INF\vistas\Logo.jpg"/></center></h1>
+   <div class="col-md-11"> <h4>${usuario.nombre} ${usuario.apellido}</h4></div>  <div class="col-md-1"><a href="login"  class="btn btn-info btn-lg active" role="button">Salir</a></div>
+</div>
 
-</br></br><div><a href="rendirExamen"  class="btn btn-danger btn-sm active" role="button">Rendir examen</a></div>
+</header>
+
+<div class="row">
+  <div class="col-md-4"></div>
+<div class="col-md-4">		<br></br>
+
+<form:form action="rendirExamen" method="POST" modelAttribute="Materias" >
+<input type="hidden" name="nombre" value="${usuario.nombre}"/>
+<input type="hidden" name="apellido" value="${usuario.apellido}"/>
+<div class="form-check" id="${usuario.id}">		
+<c:forEach items= "${Materias}" var="cursos" >
+
+<h1><span class="label label-info">${cursos.nombre} </span></h1>
+			
+			<c:forEach items= "${cursos.examen}" var="examen" >						
+		  		<input class="form-check-input"  type="checkbox"  name="idExamen" value="${examen.id}"  onclick="validacion('${usuario.id}',this)" ><label class="form-check-label">  ${examen.nombre} </label><BR>		       	    
+			
+			</c:forEach> 
+	
+</c:forEach> 
+</div>	
+<br></br>
+<input type="submit" class="btn btn-lg btn-danger btn-block" value="Enviar"/>
+
+</form:form>
+
+	</div>
+<div class="col-md-4"></div></div>
 </body>
 </html>

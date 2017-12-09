@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 
@@ -17,37 +18,52 @@ public class Examen {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;	
+	private long id;	
 	private String nombre;
 	private String fecha;
 	private String tipo;
+	private int umbral;
 	
+	@ManyToOne (fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@JoinColumn (name="idCurso")
+	private Curso curso;
 	
-	@OneToMany (fetch=FetchType.EAGER,cascade=CascadeType.ALL)
-	@JoinColumn (name="idExamen")
-	private List<Pregunta> preguntas;
+	/*@ManyToOne
+	private Curso curso;*/
 	
-	
-	public Examen() {
-		super();
+	public Curso getCurso() {
+		return curso;
+	}
+
+	public void setCurso(Curso curso) {
+		this.curso = curso;
 	}
 
 
-	public Examen(String nombre, String fecha, String tipo, List<Pregunta> preguntas) {
+	@OneToMany (fetch=FetchType.EAGER,cascade=CascadeType.ALL)
+	@JoinColumn (name="idExamen")
+	private List<Pregunta> preguntas;
+		
+	public Examen() {
+		super();
+	}
+	
+	public Examen(String nombre, String fecha, String tipo, List<Pregunta> preguntas,int umbral) {
 		super();
 		this.nombre = nombre;
 		this.fecha = fecha;
 		this.tipo = tipo;
 		this.preguntas = preguntas;
+		this.umbral = umbral;
 	}
 
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -91,9 +107,15 @@ public class Examen {
 		this.preguntas = preguntas;
 	} 
 	
+	public int getUmbral() {
+		return umbral;
+	}
+
+
+	public void setUmbral(int umbral) {
+		this.umbral = umbral;
+	}
 	
-		
 	
-				
 
 }

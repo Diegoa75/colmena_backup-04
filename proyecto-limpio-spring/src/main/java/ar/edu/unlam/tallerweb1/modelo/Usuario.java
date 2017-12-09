@@ -1,19 +1,28 @@
 package ar.edu.unlam.tallerweb1.modelo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+
+
+
 
 // Clase que modela el concepto de Usuario, la anotacion @Entity le avisa a hibernate que esta clase es persistible
 // el paquete ar.edu.unlam.tallerweb1.modelo esta indicado en el archivo hibernateCOntext.xml para que hibernate
@@ -35,15 +44,22 @@ public class Usuario implements Serializable{
 	private String apellido;
 	private String password;
 	private String rol;
+	 
+	 //@ManyToMany(cascade = {CascadeType.ALL})POSTA
+		//private List<Curso> cursos;
+	 
 	
-	/*@ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(name="UsuarioCurso")
-    private Set<Curso> cursos=new HashSet<Curso>();*/
-	 @ManyToMany
-	    Set<Curso> cursos;
+	
+	
+	 @ManyToMany(cascade = {CascadeType.ALL})
+	      @JoinTable(name="UsuarioCurso", joinColumns={@JoinColumn(name="IdUsuario")}, inverseJoinColumns={@JoinColumn(name="IdCurso")})
+	      //private List<Curso> cursos;
+	 private Collection<Curso> cursos = new ArrayList<Curso>();
 	
 	public Usuario(){};
-	public Usuario(String email,String password, String rol) {
+	public Usuario(String nombre, String apellido, String email,String password, String rol) {
+		this.nombre = nombre;
+		this.apellido = apellido;
 		this.email = email;
 		this.password = password;
 		this.rol= rol;
@@ -88,11 +104,12 @@ public class Usuario implements Serializable{
 	public void setApellido(String apellido) {
 		this.apellido = apellido;
 	}
-	public Set<Curso> getCursos() {
+	public Collection<Curso> getCursos() {
 		return cursos;
 	}
-	public void setCursos(Set<Curso> cursos) {
+	public void setCursos(Collection<Curso> cursos) {
 		this.cursos = cursos;
 	}
+	
 	
 }

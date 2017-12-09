@@ -41,38 +41,19 @@ public class UsuarioControler {
 	return new ModelAndView("home",model);	
 	}
 	
-	@RequestMapping("/ingresarAlumno")
-	public ModelAndView ingresarAlumno()
-	{
-		ModelMap modelo = new ModelMap();
-		Usuario alumno = new Usuario();
-		modelo.put("alumno", alumno);
-		return new ModelAndView("formularioIngresaAlumno", modelo);
-	}
+	
 	
 	/*@Inject
-	private ServicioUsuario registrarDocente;*/
-	
-	@RequestMapping(value="/guardarAlumno", method = RequestMethod.POST)
-	public ModelAndView guardarAlumno(@ModelAttribute("alumno")Usuario alumno)
-	{
-	ModelMap model= new ModelMap();	
-	alumno.setRol("alumno");
-	registrarDocente.grabarUsuario(alumno);
-	return new ModelAndView("homeAlumno",model);	
-	}
-	
-	@Inject
 	private ServicioCurso BuscarCursos;
-	@RequestMapping(value="/verCursos/{idCurso}")
-	public ModelAndView verCursos(@PathVariable(value="idCurso")long idCurso)
+	@RequestMapping(value="/verCursos/{idUsuario}")
+	public ModelAndView verCursos(@PathVariable(value="idUsuario")long idUsuario)
 	{
 	ModelMap model= new ModelMap();	
 	ArrayList<Curso>cursos = new ArrayList<Curso>();
-	cursos = BuscarCursos.consultarTodosLosCursos(idCurso);
+	cursos = BuscarCursos.consultarTodosLosCursos(idUsuario);
 	model.put("CursosdelAlumno", cursos);
 	return new ModelAndView("cursosAlumno",model);	
-	}
+	}*/
 	
 	
 }

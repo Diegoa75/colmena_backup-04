@@ -1,6 +1,5 @@
 package ar.edu.unlam.tallerweb1.dao.Preguntas;
 
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -28,4 +27,21 @@ public class PreguntaDaoImpl implements PreguntaDao{
 		
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Pregunta cargarPregunta(long IdPregunta){
+		
+		@SuppressWarnings("unused")	
+		Pregunta pr;
+		
+		final Session session = sessionFactory.getCurrentSession();
+		
+		pr=  (Pregunta) session.createCriteria(Pregunta.class)
+				.add (Restrictions.eq("id",IdPregunta))
+    			.uniqueResult();				
+		return pr;
+		}
+
+	
 }

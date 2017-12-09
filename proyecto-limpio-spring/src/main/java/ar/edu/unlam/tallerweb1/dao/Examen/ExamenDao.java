@@ -1,7 +1,8 @@
-package ar.edu.unlam.tallerweb1.dao;
+package ar.edu.unlam.tallerweb1.dao.Examen;
 import java.util.ArrayList;
 
 import ar.edu.unlam.tallerweb1.modelo.Examen;
+import ar.edu.unlam.tallerweb1.modelo.Nota;
 import ar.edu.unlam.tallerweb1.modelo.Pregunta;
 import ar.edu.unlam.tallerweb1.modelo.Respuesta;
 
@@ -10,8 +11,11 @@ public interface ExamenDao {
 	
 	ArrayList<Examen> cargarExamen ();
 	 Examen cargarExamen(long Idexamen);
+	 public Examen cargarExamenDinamico(long idCurso);
 	 ArrayList<Respuesta> corregirRta(String[] rta);
-	 ArrayList<Pregunta>  cargarPreguntaPorExamen(long Idexamen);	
+	 ArrayList<Pregunta>  cargarPreguntaPorExamen(long Idexamen);
+	 public void GrabarNotaExamen (Nota nota);
+	 public long GrabarExamen(Examen examen);
 }
 	
 

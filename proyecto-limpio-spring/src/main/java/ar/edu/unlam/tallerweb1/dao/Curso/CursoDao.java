@@ -8,6 +8,10 @@ import ar.edu.unlam.tallerweb1.modelo.Curso;
 public interface CursoDao {
 	
 	public void grabarCurso(Curso curso);
+	public void agregar(Curso curso);
 	public ArrayList<Curso> consultarTodosLosCursos(Long id);
-
+	public ArrayList<Curso> cursosParaAnotarse();
+	public ArrayList<Curso> cursosxId(long[] idCurso);	
+	public Curso GetCurso(long idCurso);
+	public Curso consultarCursoAlumno(long id);
 }

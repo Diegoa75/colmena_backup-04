@@ -1,7 +1,5 @@
 package ar.edu.unlam.tallerweb1.servicios.Preguntas;
 
-import java.util.ArrayList;
-
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
@@ -25,4 +23,9 @@ public class ServicioPreguntaImpl implements ServicioPregunta{
 	}
 	
 			
+	@Transactional
+	public Pregunta cargarPregunta(long IdPregunta){
+		return PreguntaDao.cargarPregunta(IdPregunta);
+	}
+
 }

@@ -1,19 +1,24 @@
 package ar.edu.unlam.tallerweb1.controladores;
 
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-
+import ar.edu.unlam.tallerweb1.modelo.Curso;
 import ar.edu.unlam.tallerweb1.modelo.Usuario;
-import ar.edu.unlam.tallerweb1.servicios.ServicioLogin;
+import ar.edu.unlam.tallerweb1.servicios.Login.ServicioLogin;
+import ar.edu.unlam.tallerweb1.servicios.Curso.ServicioCurso;
+import ar.edu.unlam.tallerweb1.servicios.Usuario.ServicioUsuario;
 
 
 @Controller
@@ -31,25 +36,48 @@ public class ControladorLogin {
 		return new ModelAndView("login", modelo);
 	}
 
+	@Inject
+	private ServicioCurso BuscarCursos;
+	
 	@RequestMapping(path = "/validar-login", method = RequestMethod.POST)
 	public ModelAndView validarLogin(@ModelAttribute("usuario") Usuario usuario, HttpServletRequest request) {
 		ModelMap model = new ModelMap();
 		
+		
 		Usuario usuarioBuscado = servicioLogin.consultarUsuario(usuario);
 		if (usuarioBuscado != null) {
-			//request.getSession().setAttribute("ROL", usuarioBuscado.getRol());
+			
+			request.getSession().setAttribute("idUsuario", usuarioBuscado.getId());
 			
 			if(("docente".equals(usuarioBuscado.getRol())))
 			{
-				return new ModelAndView("redirect:/homeDocente");}
+				ModelMap modelDocente = new ModelMap();
+				modelDocente.put("usuario", usuarioBuscado);
+			   
+				return new ModelAndView("homeDocente", modelDocente);}
 			
 			else{
+				
 				if(("alumno".equals(usuarioBuscado.getRol())))
-					{model.put("usuario", usuarioBuscado);
-				return new ModelAndView("homeAlumno", model);}
+					{
+					model.put("usuario", usuarioBuscado);
+					
+					ArrayList<Curso>cursos = new ArrayList<Curso>();
+					cursos = BuscarCursos.consultarTodosLosCursos(usuarioBuscado.getId());
+					model.put("Materias", cursos);
+					
+					/*Curso curso = new Curso();
+					curso = BuscarCursos.consultarCursoAlumno(usuarioBuscado.getId());
+					model.put("Materias", curso);*/
+				
+					return new ModelAndView("homeAlumno", model);}
+				
+				
 				
 				if(("admin".equals(usuarioBuscado.getRol())))
-				return new ModelAndView("redirect:/home");
+					
+				{model.put("usuario", usuarioBuscado);
+				return new ModelAndView("home", model);}
 				model.put("error", "Usuario o clave incorrecta");
 			}
 			
@@ -77,6 +105,16 @@ public class ControladorLogin {
 	public ModelAndView inicio() {
 		return new ModelAndView("redirect:/login");
 	}
+	
+	//PARA DESLOGUEAR AL USUARIO
+	@RequestMapping(value = "/exit",  method = RequestMethod.GET)
+	public ModelAndView vistaLogout (HttpServletRequest request) {
+		if(request.getSession() != null) {
+			request.getSession().invalidate();
+		}
+		return new ModelAndView("redirect:/login");
+	}
+	
 	
 
 }

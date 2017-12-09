@@ -37,4 +37,32 @@ public class UsuarioDaoImpl implements UsuarioDao {
 		Session s = sessionFactory.openSession();
 		s.save(usuario);		
 	}
+	
+	@Transactional
+	public void actualizarUsuario(Usuario usuario){	
+		Session s = sessionFactory.openSession();
+		s.update(usuario);		
+	}
+	
+	@Override
+	public Usuario UsuarioporId(long idUsuario) {
+
+		
+		final Session session = sessionFactory.getCurrentSession();
+		return (Usuario) session.createCriteria(Usuario.class)
+				.add(Restrictions.eq("id", idUsuario))
+				.uniqueResult();
+	}
+	
+	/*@SuppressWarnings("unchecked")
+	public ArrayList<Curso> consultarCursosAlumno(Long id)
+	{		
+		final Session session = sessionFactory.getCurrentSession();
+		
+		
+		return (ArrayList<Curso>) session.createCriteria(Curso.class)
+				.createAlias("usuarios", "miCurso")//usuarios viene de 
+				.add(Restrictions.eq("miCurso.id", id))
+				.list();
+}*/
 }
