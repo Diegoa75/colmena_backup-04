@@ -3,12 +3,8 @@ package ar.edu.unlam.tallerweb1.modelo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -22,6 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+
 @SuppressWarnings("serial")
 @Entity
 @Table(name="Curso")
@@ -31,21 +28,22 @@ public class Curso implements Serializable{
 	private long id;
 	private String nombre;
 	private int cantidadAlumnos;
-			 
-	 @ManyToMany(cascade = {CascadeType.ALL},mappedBy="cursos")		
-	//private List<Usuario> usuarios;
+	private int maximoAlumnos;
+			
+	 @ManyToMany(fetch=FetchType.EAGER, cascade= {CascadeType.PERSIST, CascadeType.REFRESH},mappedBy="cursos")	
+	 @Fetch(value = FetchMode.SUBSELECT)	
 	 private Collection<Usuario> usuarios = new ArrayList<Usuario>();
-	  
-	@OneToMany(fetch=FetchType.EAGER,cascade=CascadeType.ALL)
+	 
+	/*@OneToMany (fetch=FetchType.EAGER,cascade=CascadeType.ALL)
+	@JoinColumn (name="idCurso")
+	private List<Usuario> usuarios;*/
+	 	
+	@OneToMany(fetch=FetchType.EAGER,cascade= {CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinColumn (name="idCurso")	
 	@Fetch(value = FetchMode.SUBSELECT)	
 	private List<Examen> examen;
 	 
 	public Curso(){}
-	
-	public Curso(String nombre) {
-		this.nombre= nombre;
-	}
 	
 	public List<Examen> getExamen() {
 		return examen;
@@ -68,7 +66,7 @@ public class Curso implements Serializable{
 	public void setId(long idCurso) {
 		this.id = idCurso;
 	}
-
+	
 	public Collection<Usuario> getUsuarios() {
 		return usuarios;
 	}
@@ -76,7 +74,7 @@ public class Curso implements Serializable{
 	public void setUsuarios(Collection<Usuario> usuarios) {
 		this.usuarios = usuarios;
 	}
-
+	
 	public int getCantidadAlumnos() {
 		return cantidadAlumnos;
 	}
@@ -84,5 +82,15 @@ public class Curso implements Serializable{
 	public void setCantidadAlumnos(int cantidadAlumnos) {
 		this.cantidadAlumnos = cantidadAlumnos;
 	}
+
+	public int getMaximoAlumnos() {
+		return maximoAlumnos;
+	}
+
+	public void setMaximoAlumnos(int maximoAlumnos) {
+		this.maximoAlumnos = maximoAlumnos;
+	}
+	
+		
 	
 }

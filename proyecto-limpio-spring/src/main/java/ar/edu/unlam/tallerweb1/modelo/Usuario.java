@@ -18,48 +18,40 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 
-
-
-// Clase que modela el concepto de Usuario, la anotacion @Entity le avisa a hibernate que esta clase es persistible
-// el paquete ar.edu.unlam.tallerweb1.modelo esta indicado en el archivo hibernateCOntext.xml para que hibernate
-// busque entities en él
 @Entity 
 @Table(name="Usuario")
 
 public class Usuario implements Serializable{
-
-	// La anotacion id indica que este atributo es el utilizado como clave primaria de la entity, se indica que el valor es autogenerado.
+	
 	@Id
 	@Column(name="Id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	// para el resto de los atributo no se usan anotaciones entonces se usa el default de hibernate: la columna se llama igual que
-	// el atributo, la misma admite nulos, y el tipo de dato se deduce del tipo de dato de java.
+	private Long id;	
 	private String email;
 	private String nombre;
 	private String apellido;
 	private String password;
 	private String rol;
-	 
-	 //@ManyToMany(cascade = {CascadeType.ALL})POSTA
-		//private List<Curso> cursos;
-	 
 	
-	
-	
-	 @ManyToMany(cascade = {CascadeType.ALL})
-	      @JoinTable(name="UsuarioCurso", joinColumns={@JoinColumn(name="IdUsuario")}, inverseJoinColumns={@JoinColumn(name="IdCurso")})
-	      //private List<Curso> cursos;
+	 @ManyToMany(fetch=FetchType.EAGER, cascade = {CascadeType.ALL})
+     @JoinTable(name="UsuarioCurso", joinColumns={@JoinColumn(name="IdUsuario")}, inverseJoinColumns={@JoinColumn(name="IdCurso")})  
+	 @Fetch(value = FetchMode.SUBSELECT)
 	 private Collection<Curso> cursos = new ArrayList<Curso>();
-	
+	 
+	@OneToMany(fetch=FetchType.EAGER, cascade= {CascadeType.PERSIST, CascadeType.REFRESH})
+	@JoinColumn (name="idUsuario")
+	 @Fetch(value = FetchMode.SUBSELECT)
+	private List<Nota> notas;
+		
 	public Usuario(){};
-	public Usuario(String nombre, String apellido, String email,String password, String rol) {
-		this.nombre = nombre;
-		this.apellido = apellido;
+	public Usuario(String email,String password, String rol) {
 		this.email = email;
 		this.password = password;
 		this.rol= rol;
@@ -104,6 +96,7 @@ public class Usuario implements Serializable{
 	public void setApellido(String apellido) {
 		this.apellido = apellido;
 	}
+	
 	public Collection<Curso> getCursos() {
 		return cursos;
 	}
@@ -111,5 +104,11 @@ public class Usuario implements Serializable{
 		this.cursos = cursos;
 	}
 	
+	public List<Nota> getNotas() {
+		return notas;
+	}
+	public void setNotas(List<Nota> notas) {
+		this.notas = notas;
+	}
 	
 }

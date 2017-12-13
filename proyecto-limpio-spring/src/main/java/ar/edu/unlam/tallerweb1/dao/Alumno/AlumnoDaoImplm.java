@@ -21,10 +21,10 @@ public class AlumnoDaoImplm implements AlumnoDao{
 	
 	@Transactional
 	public void anotarAlumno(Usuario alumno){
-
+		
 		final Session session = sessionFactory.getCurrentSession();
 		//Session s = sessionFactory.openSession();
-		session.save(alumno);	
+		session.update(alumno);	
 	}
 
 }

@@ -26,7 +26,13 @@ public class ControladorLogin {
 	
 	 @Inject
 		private ServicioLogin servicioLogin;
-
+	 
+	 @Inject
+		private ServicioCurso servicioCurso;
+	
+	 @Inject
+		private ServicioUsuario serviciousuario;	
+	
 	@RequestMapping("/login")
 	public ModelAndView irALogin() {
 
@@ -52,7 +58,13 @@ public class ControladorLogin {
 			if(("docente".equals(usuarioBuscado.getRol())))
 			{
 				ModelMap modelDocente = new ModelMap();
+				
+				ArrayList<Curso> cursos = new ArrayList<Curso>();		
+				cursos =	servicioCurso.cursosParaAnotarse();
+				
+				modelDocente.put("Cursos", cursos);
 				modelDocente.put("usuario", usuarioBuscado);
+				
 			   
 				return new ModelAndView("homeDocente", modelDocente);}
 			
@@ -64,15 +76,10 @@ public class ControladorLogin {
 					
 					ArrayList<Curso>cursos = new ArrayList<Curso>();
 					cursos = BuscarCursos.consultarTodosLosCursos(usuarioBuscado.getId());
-					model.put("Materias", cursos);
+					model.put("Materias", cursos);	
 					
-					/*Curso curso = new Curso();
-					curso = BuscarCursos.consultarCursoAlumno(usuarioBuscado.getId());
-					model.put("Materias", curso);*/
-				
 					return new ModelAndView("homeAlumno", model);}
-				
-				
+								
 				
 				if(("admin".equals(usuarioBuscado.getRol())))
 					
@@ -94,10 +101,6 @@ public class ControladorLogin {
 		return new ModelAndView("home");
 	}
 	
-	@RequestMapping(path = "/homeDocente", method = RequestMethod.GET)
-	public ModelAndView irAHomeDocente() {
-		return new ModelAndView("homeDocente");
-	}
 	
 
 	// Escucha la url /, y redirige a la URL /login, es lo mismo que si se invoca la url /login directamente.
@@ -114,6 +117,57 @@ public class ControladorLogin {
 		}
 		return new ModelAndView("redirect:/login");
 	}
+	
+	@RequestMapping(value = "/irHomeusuario",  method = RequestMethod.GET)
+	public ModelAndView irHomeusuario(HttpServletRequest request) {
+		ModelMap model = new ModelMap();
+		
+		
+		Usuario usuarioBuscado = serviciousuario.UsuarioporId((long) request.getSession().getAttribute("idUsuario"));
+		if (usuarioBuscado != null) {
+			
+			request.getSession().setAttribute("idUsuario", usuarioBuscado.getId());
+			
+			if(("docente".equals(usuarioBuscado.getRol())))
+			{
+				ModelMap modelDocente = new ModelMap();
+				
+				ArrayList<Curso> cursos = new ArrayList<Curso>();		
+				cursos =	servicioCurso.cursosParaAnotarse();
+				
+				modelDocente.put("Cursos", cursos);
+				modelDocente.put("usuario", usuarioBuscado);
+				
+			   
+				return new ModelAndView("homeDocente", modelDocente);}
+			
+			else{
+				
+				if(("alumno".equals(usuarioBuscado.getRol())))
+					{
+					model.put("usuario", usuarioBuscado);
+					
+					ArrayList<Curso>cursos = new ArrayList<Curso>();
+					cursos = BuscarCursos.consultarTodosLosCursos(usuarioBuscado.getId());
+					model.put("Materias", cursos);	
+					
+					return new ModelAndView("homeAlumno", model);}
+								
+				
+				if(("admin".equals(usuarioBuscado.getRol())))
+					
+				{model.put("usuario", usuarioBuscado);
+				return new ModelAndView("home", model);}
+				model.put("error", "Usuario o clave incorrecta");
+			}
+			
+		} else {
+			// si el usuario no existe agrega un mensaje de error en el modelo.
+			model.put("error", "Usuario o clave incorrecta");
+		}
+		return new ModelAndView("login", model);//como no existe te manda de vuelta al login
+	}
+
 	
 	
 

@@ -1,13 +1,8 @@
 package ar.edu.unlam.tallerweb1.controladores.Docente;
 
-
-import java.awt.Checkbox;
 import java.util.ArrayList;
-
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Assert;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ar.edu.unlam.tallerweb1.modelo.Curso;
 import ar.edu.unlam.tallerweb1.modelo.Examen;
+import ar.edu.unlam.tallerweb1.modelo.Nota;
 import ar.edu.unlam.tallerweb1.modelo.Pregunta;
 import ar.edu.unlam.tallerweb1.modelo.Respuesta;
 import ar.edu.unlam.tallerweb1.servicios.Curso.ServicioCurso;
@@ -27,85 +24,191 @@ import ar.edu.unlam.tallerweb1.servicios.Preguntas.ServicioPregunta;
 import ar.edu.unlam.tallerweb1.servicios.Respuesta.ServicioRespuesta;
 
 
-@Controller
+@Controller	
 public class DocenteController{
-	
-	
-	/*ALTA EXAMEN*/
-	@Inject ServicioCurso serviciocurso;
-	@RequestMapping("/ingresarNuevoExamenDocente")	
-	public ModelAndView homeExamen()
-	{
-	ArrayList<Curso> curso = new ArrayList<Curso>();	
-	curso = serviciocurso.cursosParaAnotarse();
 			
-	Examen examen = new Examen();		
-	ModelMap Model = new ModelMap();
+	@Inject ServicioCurso serviciocurso;
+	@Inject ServicioExamen servicioexamen;
+	@Inject ServicioPregunta serviciopregunta;
+	@Inject ServicioRespuesta servicioRespuesta;
 	
-	Model.put("Curso", curso);
-	Model.put("Examen", examen);
-	
-	return new ModelAndView("altaExamenDocente", Model);
+	@RequestMapping(value="/IrAccion", method= RequestMethod.POST)	
+	public ModelAndView altaExamen(@RequestParam("IdCurso")long idCurso, @RequestParam("btnAction")String accion){
+		ModelMap model = new ModelMap();	
+		Curso curso = new Curso();
+		Nota nota = new Nota();
+		curso = serviciocurso.GetCurso(idCurso);
+		Examen examen = new Examen();	
+		String vista="";
 		
+		switch (accion){
+		case "Ver Examenes": 	
+			model.put("Curso", curso);			
+			vista="listaExamen";									
+			break;
+		case "Alta Examen": 
+			model.put("Curso", curso);	
+			model.put("Examen", examen);			
+			vista="altaExamenDocente";				
+			break;					
+		case "Ver Alumnos": 
+			model.put("Curso", curso);						
+			vista="vistaAlumnoCurso";
+			
+		case	"Ver Notas":
+			model.put("Curso", curso);
+			model.put("Examen", examen);
+			model.put("Nota", nota);
+			vista="vistaNotasAlumnos";
+		}	
+		
+		return new ModelAndView(vista, model);		
 	}
 	
-	@Inject ServicioExamen cargarExamen;	
+			
+	@RequestMapping(value="/ModificarExamenDocente/{idExamen}", method=RequestMethod.GET)
+	public ModelAndView ModificarExamenDocente(@PathVariable long idExamen){
+		ModelMap model = new ModelMap();
+		Examen examen = new Examen();
+		Pregunta pregunta = new Pregunta();
+					
+		/*traigo el examen de la base por id*/			
+		examen= servicioexamen.cargarExamen((long)idExamen);			
+		model.addAttribute("examen", examen);				
+				
+		return new ModelAndView("abmExamen",model);
+	}
+	
+	@RequestMapping(value="/DesabilitarExamenDocente/{idExamen}", method=RequestMethod.GET)
+	public ModelAndView DesabilitarExamen(@PathVariable long idExamen){
+		
+		ModelMap model = new ModelMap();
+		Examen examen = new Examen();	
+		examen= servicioexamen.cargarExamen((long)idExamen);
+		
+		examen.setHabilitado(1);			
+		servicioexamen.SetEstadoExamen(examen);	
+						
+		model.addAttribute("Curso", examen.getCurso());						
+		return new ModelAndView("listaExamen",model);
+	
+	}
+	
+	@RequestMapping(value="/HabilitarExamenDocente/{idExamen}", method=RequestMethod.GET)
+	public ModelAndView HabilitarExamen(@PathVariable long idExamen){
+		
+		ModelMap model = new ModelMap();
+		Examen examen = new Examen();	
+		examen= servicioexamen.cargarExamen((long)idExamen);
+			
+		examen.setHabilitado(0);			
+		servicioexamen.SetEstadoExamen(examen);					
+							
+		model.addAttribute("Curso", examen.getCurso());	
+					
+		return new ModelAndView("listaExamen",model);
+	
+	}
+	
+	
+	
+	
+	/*@RequestMapping(value = "/BorrarExamenDocente/listaExamen", method = RequestMethod.GET)
+	   public String homeExamenDocente() {
+	      return "listaExamen";
+	   }*/
+		
+	
+	/*ALTA EXAMEN*/
 	@RequestMapping(value="/guardarExamen", method= RequestMethod.POST)	
-	public ModelAndView altaExamen(@RequestParam("IdCurso")long idCurso, @ModelAttribute("Examen") Examen examen){
+	public ModelAndView GuardarExamenDocente(@RequestParam("IdCurso")long idCurso, @ModelAttribute("Examen") Examen examen){
 		
 		Pregunta pregunta = new Pregunta();
 		
 		ModelMap modelExamen = new ModelMap();
 		Curso curso = new Curso();
 		curso = serviciocurso.GetCurso(idCurso);
-		examen.setCurso(curso);
-							
-		cargarExamen.GrabarExamen(examen);
-								
-		modelExamen.put("examen", examen);		
-		modelExamen.put("pregunta", pregunta);
 		
-		return new ModelAndView("altaPreguntaDocente", modelExamen);			
+		examen.setCurso(curso);
+		examen.setHabilitado(1);//por defecto se crea deshabilitado
+							
+		servicioexamen.GrabarExamen(examen);		
+				
+		curso = serviciocurso.GetCurso(idCurso);
+							
+		modelExamen.addAttribute("Curso", curso);	
+		
+		
+		return new ModelAndView("listaExamen", modelExamen);			
 		
 	}
-
 	
-	@Inject ServicioExamen examenServicio;
-	@Inject ServicioPregunta grabarPregunta;	
-	@RequestMapping(value="/guardarPregunta", method=RequestMethod.POST)
+	//CargarPreguntaDocente
+	@RequestMapping(value="/CargarPreguntaDocente/{idExamen}", method=RequestMethod.GET)
+	public ModelAndView CargarPreguntaDocente(@PathVariable long idExamen){
+		ModelMap model = new ModelMap();
+		Examen examen = new Examen();
+		Pregunta pregunta = new Pregunta();	
+		
+		examen= servicioexamen.cargarExamen((long)idExamen);	
+						
+		model.addAttribute("Pregunta", pregunta);	
+		model.put("Examen", examen);
+				
+		return new ModelAndView("altaPreguntaDocente",model);
+	}
+	
+	/*guardar Pregunta*/	
+	@RequestMapping(value="/CargarPreguntaDocente/guardarPregunta", method=RequestMethod.POST)
 	public ModelAndView altaPregunta(@RequestParam("IdExamen")long idExamen,@ModelAttribute("pregunta") Pregunta pregunta){
 		ModelMap modelPregunta = new ModelMap();
 		
 		/*traigo el examen de la base por id*/
 		Examen examen = new Examen();	
-		examen= examenServicio.cargarExamen((long)idExamen);
+		examen= servicioexamen.cargarExamen((long)idExamen);
 		/*relaciono el examen con la pregunta y la guardo */
 		pregunta.setExamen(examen);		
-		grabarPregunta.grabarPregunta(pregunta); 
+		serviciopregunta.grabarPregunta(pregunta); 
 		
 		/*mando el examen para poder mostrar todas las preguntas del mismo con un for en la vista*/
-		examen= examenServicio.cargarExamen((long)idExamen);
+		examen= servicioexamen.cargarExamen((long)idExamen);
 		modelPregunta.put("examen", examen);	
-		/*creo y mando una nueva instancia de pregunta para poder dar de alta otra*/
-		pregunta=new Pregunta();
-		modelPregunta.put("pregunta", pregunta);
 		
-		return new ModelAndView("altaPreguntaDocente",modelPregunta);
-				
 		
+		return new ModelAndView("abmExamen",modelPregunta);
 	}
 	
-	/*VISTA RESPUESTA*/
-	@Inject ServicioPregunta servicioPregunta;
-	@Inject ServicioExamen getExamen;
+	/*Borrar Pregunta*/	
+	@RequestMapping(value="/borrarPreguntaDocente/{idExamen}/{idPregunta}", method=RequestMethod.GET)
+	public ModelAndView borrarPregunta(@PathVariable long idExamen, @PathVariable long idPregunta){
+		Examen examen = new Examen();
+		ModelMap model=new ModelMap();
+				
+		/*Valido si el examen ya fue rendido alguna vez*/		
+		if (servicioexamen.ExamenYaUtilizado((long)idExamen)==true){
+			model.put("mensageErr", "<script type='text/javascript'>alert('No se puede eliminar la respuesta por que el examen ya fue rendido por al menos un alumno');</script>");
+		}
+		else
+		{	
+			serviciopregunta.borrarPregunta(idPregunta);						
+		}
+				
+		/*traigo el examen de la base por id*/			
+		examen= servicioexamen.cargarExamen((long)idExamen);			
+		model.addAttribute("examen", examen);
+							
+		return new ModelAndView("abmExamen",model);
+	}
 	
+	
+	/*ALTA RESPUESTA*/		
 	@RequestMapping ("/guardarRespuestaDocente/{idExamen}/{idPregunta}")
-	public ModelAndView homeRespuesta(@PathVariable long idExamen, @PathVariable long idPregunta){
+	public ModelAndView guardarRespuestaDocente(@PathVariable long idExamen, @PathVariable long idPregunta){
 			
 	ModelMap ModelRespuesta = new ModelMap();
 		
-	Examen examen = getExamen.cargarExamen((long)idExamen); 
-	Pregunta pregunta = servicioPregunta.cargarPregunta((long)idPregunta);
+	Examen examen = servicioexamen.cargarExamen((long)idExamen); 
+	Pregunta pregunta = serviciopregunta.cargarPregunta((long)idPregunta);
 	Respuesta respuesta = new Respuesta();	
 			
 	ModelRespuesta.put("examen", examen);
@@ -114,58 +217,68 @@ public class DocenteController{
 	
 	return new ModelAndView ("altaRespuestaDocente", ModelRespuesta);		
 	}
+	
 		
 	
-	/*ALTA RESPUESTA*/	
-	@Inject ServicioRespuesta servicioRespuesta;
+	/*ALTA RESPUESTA*/		
 	@RequestMapping(value="/altaRespuestaDocenteok", method=RequestMethod.POST)	
 	public ModelAndView altRespuesta( @RequestParam("checkCorrecta")int checkCorrecta, @RequestParam long idExamen, @RequestParam long idPregunta,
 			@ModelAttribute("respuesta") Respuesta respuesta)
 	{
-		ModelMap ModelRespuesta = new ModelMap();
-		
+		ModelMap ModelRespuesta = new ModelMap();		
 		Examen examen = new Examen();	
-		examen= examenServicio.cargarExamen((long)idExamen);
+				
 						
 		/*traigo la pregunta de la base por id*/
 		Pregunta pregunta = new Pregunta();
-		pregunta= grabarPregunta.cargarPregunta((long) idPregunta);
+		pregunta= serviciopregunta.cargarPregunta((long) idPregunta);
 		
-		if (checkCorrecta==1){
-			respuesta.setCorrecta(true);
+		/*valido que solo exista una respuesta correcta*/
+		if (servicioRespuesta.validarRespuesta((long) idPregunta) && (checkCorrecta==1)) {
+			ModelRespuesta.put("mensageErr", "<script type='text/javascript'>alert('Solo puede existir 1 respuesta Correcta por pregunta');</script>");		
 		}
 		else
 		{
-			respuesta.setCorrecta(false);
+			if (checkCorrecta==1)
+				respuesta.setCorrecta(true);			
+			else			
+				respuesta.setCorrecta(false);
+			
+			/*relaciono la pregunta con la respuesta y la guardo */
+			respuesta.setPregunta(pregunta);			
+		    servicioRespuesta.grabarRespuesta(respuesta);			
 		}
-				
-				
-		/*relaciono la pregunta con la respuesta y la guardo */
-		respuesta.setPregunta(pregunta);			
-	    servicioRespuesta.grabarRespuesta(respuesta);
-			    			
-		/*mando la pregunta para poder mostrar todas las respuestas del mismo con un for en la vista*/
 		
-		
-		examen= examenServicio.cargarExamen((long)idExamen);
-		pregunta= grabarPregunta.cargarPregunta((long) idPregunta);
-		
-		ModelRespuesta.put("examen", examen);
-		ModelRespuesta.put("pregunta", pregunta);			
+					    								
+		examen= servicioexamen.cargarExamen((long)idExamen);				
+		ModelRespuesta.put("examen", examen);				
 		 				
-		return new ModelAndView ("altaPreguntaDocente", ModelRespuesta);
+		return new ModelAndView ("abmExamen", ModelRespuesta);
 		
 	}
 	
-	/*Vista de Alumnos*/
-	
-	@RequestMapping("/vistaAlumnosDocente")
-	public ModelAndView verAlumnos(){
+	/*borrar respuesta*/
+	///borrarRespuestaDocente/${examen.id}/${pregunta.id}/${respuestas.id}
+	@RequestMapping(value="/borrarRespuestaDocente/{idExamen}/{idPregunta}/{idRespuesta}", method=RequestMethod.GET)
+	public ModelAndView borrarRespuesta(@PathVariable long idExamen, @PathVariable long idPregunta, @PathVariable long idRespuesta){
+		ModelMap model = new ModelMap();
+		Examen examen = new Examen();
 		
-		ModelMap modelAlumnoDocente = new ModelMap();
 				
-	return new ModelAndView("vistaAlumnoDocente", modelAlumnoDocente);
-			
+		/*Valido si el examen ya fue rendido alguna vez*/		
+		if (servicioexamen.ExamenYaUtilizado((long)idExamen)==true){
+			model.put("mensageErr", "<script type='text/javascript'>alert('No se puede eliminar la respuesta por que el examen ya fue rendido por al menos un alumno');</script>");
+		}
+		else
+		{	
+			servicioRespuesta.borrarRespuesta(idRespuesta);						
+		}
+				
+		/*traigo el examen de la base por id*/			
+		examen= servicioexamen.cargarExamen((long)idExamen);			
+		model.addAttribute("examen", examen);
+							
+		return new ModelAndView("abmExamen",model);
 	}
 	
 		  
